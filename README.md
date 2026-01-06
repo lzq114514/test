@@ -19,8 +19,8 @@
 
 Create a conda environment from the provided `pap.yaml`:
 
-```bash
-conda env create -f pap.yaml
+
+`conda env create -f pap.yaml`
 Description:
 This sets up all dependencies required to run the pipeline.
 
@@ -34,9 +34,8 @@ Running the pipeline
 Step 1: Prepare chromosomes
 Run:
 
-bash
-复制代码
-sbatch 1gfchr.sh data/ninanjie
+
+`sbatch 1gfchr.sh data/ninanjie`
 Description:
 Before running, modify the sbatch parameters in gffreademapper.py (bottom of script) and gfchr.sh (top of script) to match your job submission system.
 
@@ -44,9 +43,8 @@ Before running, modify the sbatch parameters in gffreademapper.py (bottom of scr
 Step 2: Run PGGB
 Run:
 
-bash
-复制代码
-sbatch 2pggb.sh
+
+`sbatch 2pggb.sh`
 Description:
 Edit 2pggb.sh to set the following parameters according to your system:
 
@@ -70,9 +68,8 @@ Additional PGGB parameters (e.g., -n, -k, -j) are in the middle of the script.
 Step 3: Generate VCF from PGGB
 Run:
 
-bash
-复制代码
-python3 3gfavcf.py data/ninanjie ninanjie1 CP
+
+`python3 3gfavcf.py data/ninanjie ninanjie1 CP`
 Description:
 
 ninanjie1 is the prefix of the reference genome FASTA file used in PGGB
@@ -82,9 +79,8 @@ CP is the first two letters of the reference genome chromosome ID (for Arabidops
 Step 4: Unmerge GFF
 Run:
 
-bash
-复制代码
-python3 4xunzhaogff.py ninanjie
+
+`python3 4xunzhaogff.py ninanjie`
 Description:
 Modify the parameters input_gff and input_fna in the script to point to the reference genome's GFF and FASTA files.
 
@@ -92,9 +88,8 @@ Modify the parameters input_gff and input_fna in the script to point to the refe
 Step 5: Final annotation
 Run:
 
-bash
-复制代码
-python3 5anno.py data/ninanjie
+
+`python3 5anno.py data/ninanjie`
 Description:
 Modify sbatch parameters in the script to match your Linux system, and set the prefix parameter to the reference genome prefix followed by #1# (e.g., for Arabidopsis, use ninanjie1#1#).
 
@@ -102,8 +97,7 @@ Modify sbatch parameters in the script to match your Linux system, and set the p
 Step 6: Sort annotation files
 Run:
 
-bash
-复制代码
-python3 7sort.py INPUT_DIR
+
+`python3 7sort.py INPUT_DIR`
 Description:
 Using 7sort.py, the orphan (gene-unassigned) alternative splicing structures generated in the previous step are organized into a standard annotation format.
