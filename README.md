@@ -36,6 +36,7 @@ Run:
 
 
 `sbatch 1gfchr.sh data/ninanjie`
+
 Description:
 Before running, modify the sbatch parameters in gffreademapper.py (bottom of script) and gfchr.sh (top of script) to match your job submission system.
 
@@ -45,6 +46,7 @@ Run:
 
 
 `sbatch 2pggb.sh`
+
 Description:
 Edit 2pggb.sh to set the following parameters according to your system:
 
@@ -70,6 +72,7 @@ Run:
 
 
 `python3 3gfavcf.py data/ninanjie ninanjie1 CP`
+
 Description:
 
 ninanjie1 is the prefix of the reference genome FASTA file used in PGGB
@@ -81,6 +84,7 @@ Run:
 
 
 `python3 4xunzhaogff.py ninanjie`
+
 Description:
 Modify the parameters input_gff and input_fna in the script to point to the reference genome's GFF and FASTA files.
 
@@ -90,14 +94,25 @@ Run:
 
 
 `python3 5anno.py data/ninanjie`
+
 Description:
 Modify sbatch parameters in the script to match your Linux system, and set the prefix parameter to the reference genome prefix followed by #1# (e.g., for Arabidopsis, use ninanjie1#1#).
 
+Step 6: minimap annotation
+Run:
 
-Step 6: Sort annotation files
+
+`python3 6miniprot.py INPUT_DIR`
+
+Description:INPUT_DIR is the directory containing files to be annotated. It should include all .fa files that need to be annotated.
+
+
+
+Step 7: Sort annotation files
 Run:
 
 
 `python3 7sort.py INPUT_DIR`
+
 Description:
 Using 7sort.py, the orphan (gene-unassigned) alternative splicing structures generated in the previous step are organized into a standard annotation format.
