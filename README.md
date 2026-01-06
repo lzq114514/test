@@ -1,139 +1,109 @@
 # Pangenome-Graph-Annotation-PGA-pipeline
+
 "A pggb-based homologous backfill annotation method"
-1. Setting up the environment:
-    - Use conda to create an environment from pap.yaml.
 
-      `conda env create -f pap.yaml`
+## Table of Contents
+1. [Setting up the environment](#setting-up-the-environment)  
+2. [Input requirements](#input-requirements)  
+3. [Running the pipeline](#running-the-pipeline)  
+   - [Step 1: Prepare chromosomes](#step-1-prepare-chromosomes)  
+   - [Step 2: Run PGGB](#step-2-run-pggb)  
+   - [Step 3: Generate VCF from PGGB](#step-3-generate-vcf-from-pggb)  
+   - [Step 4: Unmerge GFF](#step-4-unmerge-gff)  
+   - [Step 5: Final annotation](#step-5-final-annotation)  
+   - [Step 6: Sort annotation files](#step-6-sort-annotation-files)  
 
-2. Input requirements:
-    - A folder containing all genome FASTA files (with .fna extension) and corresponding GFF files.
-    - For each chromosome ID in the FASTA files, the chromosome must be labeled as "chromosome 1", "chromosome x" for sex chromosomes, etc. (currently only human genome is supported, but the example uses Arabidopsis from the data/ninanjie/fna folder).
+---
 
+## Setting up the environment
 
-      <img width="270" height="70" alt="image" src="https://github.com/user-attachments/assets/72292c0b-e1d5-489a-9525-e8c5439ec979" />
+Create a conda environment from the provided `pap.yaml`:
 
-3. Running the pipeline (5 steps):
-
-Step 1: 
-
-- Run with:
-
-`sbatch 1gfchr.sh data/ninanjie`
-
+```bash
+conda env create -f pap.yaml
 Description:
+This sets up all dependencies required to run the pipeline.
 
-Before running, modify the sbatch parameters in `gffreademapper.py`（bottom of script） and `gfchr.sh`(top of script) to match your job submission system.
-    
+Input requirements
+A folder containing all genome FASTA files (.fna) and corresponding GFF files.
 
-<img width="300" height="120" alt="image" src="https://github.com/user-attachments/assets/0eff2bdf-d286-4cc6-8335-4c53d73f30da" />
-    
-
-<img width="200" height="104" alt="image" src="https://github.com/user-attachments/assets/5b0a1e8f-b95e-4823-87c6-978b4f5318a0" />
+Chromosome IDs in FASTA files must follow the format "chromosome 1", "chromosome X" for sex chromosomes, etc. (Currently only human genome fully supported; the example uses Arabidopsis in data/ninanjie/fna).
 
 
+Running the pipeline
+Step 1: Prepare chromosomes
+Run:
 
-Step 2:
-
+bash
+复制代码
+sbatch 1gfchr.sh data/ninanjie
 Description:
+Before running, modify the sbatch parameters in gffreademapper.py (bottom of script) and gfchr.sh (top of script) to match your job submission system.
 
-- Edit the script `2pggb.sh` to set the following parameters:
 
-DEFAULT_PARTITION: your job system partition
+Step 2: Run PGGB
+Run:
 
-DEFAULT_REF_PREFIX: the prefix of the reference genome
+bash
+复制代码
+sbatch 2pggb.sh
+Description:
+Edit 2pggb.sh to set the following parameters according to your system:
 
-DEFAULT_WORKDIR: the absolute path to workflow2 (e.g., ninanjieworkflow2)
+DEFAULT_PARTITION: job system partition
+
+DEFAULT_REF_PREFIX: prefix of reference genome
+
+DEFAULT_WORKDIR: absolute path to workflow2 (e.g., ninanjieworkflow2)
 
 DEFAULT_SINGULARITY_PATH: path to Singularity
 
-DEFAULT_PGGB_IMAGE: path to the downloaded pggb-latest.simg
+DEFAULT_PGGB_IMAGE: path to downloaded pggb-latest.simg
 
-DEFAULT_PGGB_BIN: path to pggb
+DEFAULT_PGGB_BIN: path to PGGB binary
 
-START_CHR and END_CHR: the first and last chromosome numbers of the reference genome.
+START_CHR and END_CHR: first and last chromosome numbers of the reference genome
 
-Detailed parameters for PGGB can be found in the middle of this script such as -n -k -j
-
-
-<img width="470" height="100" alt="image" src="https://github.com/user-attachments/assets/2fb9a9d4-be91-4f66-9a30-d271e21bfd6c" />
-
-    
-
-<img width="1704" height="33" alt="image" src="https://github.com/user-attachments/assets/53475210-cef9-4d1d-8aeb-05005259224a" />
+Additional PGGB parameters (e.g., -n, -k, -j) are in the middle of the script.
 
 
-
-Then run:
-
-`sbatch 2pggb.sh`
-
-
-Step 3:
-
+Step 3: Generate VCF from PGGB
 Run:
 
+bash
+复制代码
+python3 3gfavcf.py data/ninanjie ninanjie1 CP
 Description:
 
-`python3 3gfavcf.py data/ninanjie ninanjie1 CP`
-        
-Here, “ninanjie1” is the prefix of the reference genome FASTA file used in pggb, and “CP” is the first two letters of the reference genome chromosome ID (e.g., for Arabidopsis chromosome ">CP002684.1", use "CP").
-   
+ninanjie1 is the prefix of the reference genome FASTA file used in PGGB
 
-Step 4:
-       
+CP is the first two letters of the reference genome chromosome ID (for Arabidopsis chromosome >CP002684.1, use CP)
+
+Step 4: Unmerge GFF
 Run:
 
-`python3 4xunzhaogff.py ninanjie`
-
-Description:           
-
-Modify the parameters “input_gff” and “input_fna” in the script to point to the reference genome's GFF and FASTA files.
-
-       
-
-<img width="500" height="25" alt="image" src="https://github.com/user-attachments/assets/35487177-4aea-4fe1-ad24-8a86652d6012" />
-
-
-
-Step 5:
-
-- Run:
-    
-`python3 5anno.py data/ninanjie`
-
+bash
+复制代码
+python3 4xunzhaogff.py ninanjie
 Description:
-        
-Modify the sbatch parameters in the script to match your Linux system, and set the “prefix” parameter to the reference genome prefix followed by "#1#", e.g., for Arabidopsis, set to “ninanjie1#1#”.
+Modify the parameters input_gff and input_fna in the script to point to the reference genome's GFF and FASTA files.
 
 
-<img width="200" height="60" alt="image" src="https://github.com/user-attachments/assets/123a60ae-600a-4465-9d86-23720e3ca1e7" />
-
-
-Step 6: Miniprot Annotation
-
+Step 5: Final annotation
 Run:
 
-`python miniprot.py --input-dir INPUT_DIR --protein ./workflow4/miniprotzhushi.fa --partition PARTITION --ntasks-per-node NTASKS_PER_NODE --threads THREADS --job-name JOB_NAME --group-workers GROUP_WORKERS`
-
-
+bash
+复制代码
+python3 5anno.py data/ninanjie
 Description:
+Modify sbatch parameters in the script to match your Linux system, and set the prefix parameter to the reference genome prefix followed by #1# (e.g., for Arabidopsis, use ninanjie1#1#).
 
---input-dir: Specify the directory containing the genome files to be annotated. Multiple genomes can be included.
 
---protein: Provide the protein reference database used for annotation. The path should be /workflow4/miniprotzhushi.fa.
-
-Other parameters (e.g., --partition, --threads) can be adjusted according to your system resources.
-
-This step performs homology-based annotation using Miniprot, generating preliminary GFF3 functional annotation files for the input genomes.
-        
-Step 7: sort Annotation files
-
+Step 6: Sort annotation files
 Run:
 
-`python 7sort.py INPUT_DIR`
-
+bash
+复制代码
+python3 7sort.py INPUT_DIR
 Description:
-
-Using 7sort.py, the orphan (gene-unassigned) alternative splicing structures generated in the previous step were organized into a standard annotation format.
-
-
+Using 7sort.py, the orphan (gene-unassigned) alternative splicing structures generated in the previous step are organized into a standard annotation format.
